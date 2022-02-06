@@ -1,31 +1,3 @@
-
-Skip to content
-Pull requests
-Issues
-Marketplace
-Explore
-@nevinpai
-nevinpai /
-Botball2020
-Private
-
-Code
-Issues
-Pull requests
-Actions
-Projects
-Security
-Insights
-
-    Settings
-
-Botball2020/wombat/drive.c
-@nevinpai
-nevinpai Update drive.c
-Latest commit acc8eb8 on Feb 17, 2020
-History
-1 contributor
-506 lines (466 sloc) 14 KB
 #include "drive.h"
 #include <kipr/botball.h>
 #include <math.h>
@@ -531,19 +503,3 @@ void square_up(){
         msleep(500);
     }
 }
-
-    © 2022 GitHub, Inc.
-
-    Terms
-    Privacy
-    Security
-    Status
-    Docs
-    Contact GitHub
-    Pricing
-    API
-    Training
-    Blog
-    About
-
-Loading complete
