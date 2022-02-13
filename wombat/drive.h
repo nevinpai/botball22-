@@ -146,7 +146,7 @@ void light_start ();
 
 // Below are added in 2022
 
-void slow_servo(int fin, int port); //fin is the desired final position
+void slow_servo(int fin, int port); //fin is the desired final position, inc is the increment to pause at in ms (ideally less than 20)
 
 void calibrate_Tophat();
 
