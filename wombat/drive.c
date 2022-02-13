@@ -423,7 +423,7 @@ void light_start () {
 }
 
 
-void slow_servo(int fin, int port)
+void slow_servo(int fin, int inc, int port)
 {
     int init = get_servo_position(port)
     if (init < fin)
@@ -431,7 +431,7 @@ void slow_servo(int fin, int port)
         for (init; init < fin; init++)
         {
             set_servo_position(port, init);
-            msleep(5);// adjust value to increase or decrease speed
+            msleep(inc);// adjust value to increase or decrease speed
         }
         return;
     }
@@ -440,7 +440,7 @@ void slow_servo(int fin, int port)
         for (init; init > fin; init--)
         {
             set_servo_position(port, init);
-            msleep(5);// adjust value to increase or decrease speed
+            msleep(inc);// adjust value to increase or decrease speed
         }
         return;
     }
