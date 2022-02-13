@@ -144,6 +144,14 @@ void lineFollow(int speed, int ms, int side, int port);
 
 void light_start ();
 
+// Below are added in 2022
+
+void slow_servo(int fin, int port); //fin is the desired final position
+
+void calibrate_Tophat();
+
+void square_up();
+
 #endif
 
 /* APPENDIX
