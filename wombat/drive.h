@@ -28,7 +28,7 @@
 
 // Tuning Constants
 #define SPD_L_F 1300 // Left forward speed. Max is 1500.
-#define SPD_R_F 1300. // Right forward speed. Max is 1500.
+#define SPD_R_F 1300 // Right forward speed. Max is 1500.
 #define SPD_L_B 1300 // Left backward speed. Max is 1500.
 #define SPD_R_B 1300 // Right backward speed. Max is 1500.
 
