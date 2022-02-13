@@ -1,6 +1,7 @@
 #include "drive.h"
 // #include <kipr/botball.h>
 #include <kipr/wombat.h>
+#include <stdio.h>
 #include <math.h>
 
 void drive_off() {
