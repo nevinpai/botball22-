@@ -948,10 +948,11 @@ void dual_servos(int amt, int inc){ // pos amt for forward, neg amt for back (in
     int moved = 0;// the amt moved outta total
     if(back==0){
         while(moved<=amt){
-            printf("moving FORWARD");
+
             right_pos = get_servo_position(rserv);
             left_pos = get_servo_position(lserv);
-            set_servo_position(rserv, right_pos - inc);
+            if(get_servo_position(rserv)-inc>=60){set_servo_position(rserv, right_pos - inc);}
+            else{ set_servo_position(rserv,60); break;}
             set_servo_position(lserv, left_pos + inc);
             moved += inc;
             msleep(5);
@@ -959,14 +960,16 @@ void dual_servos(int amt, int inc){ // pos amt for forward, neg amt for back (in
         }
 
     }
+
     
     else if(back ==1){
          while(moved<=amt){
-            printf("moving BACK");
+           
             right_pos = get_servo_position(rserv);
             left_pos = get_servo_position(lserv);
             set_servo_position(rserv, right_pos + inc);
-            set_servo_position(lserv, left_pos - inc);
+             if(get_servo_position(lserv)-inc>=135){set_servo_position(lserv, left_pos - inc);}
+            else{ set_servo_position(lserv,135); break;}
             moved += inc;
             msleep(5);
 
@@ -974,5 +977,11 @@ void dual_servos(int amt, int inc){ // pos amt for forward, neg amt for back (in
 
         
     }
-
+}
+void dual_servo_position(int pos, int inc) {
+     
+      int lserv = 0;
+      int ticks = pos - get_servo_position(lserv);
+      dual_servos(ticks, inc);
+    
 }
