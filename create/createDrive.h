@@ -92,7 +92,15 @@ void create_setup_cliff_auto();
 
 void create_skip_cliff();
 
+
+
 void dual_servos(int amt, int inc); // pos amt for forward, neg amt for back (in servo ticks), inc is the increment
+
+void dual_servo_position(int pos, int time);
+
+void slow_servo(int amt, int inc, int port);
+
+void slow_servo_position(int amt, int inc, int port);
 
 int lfWhite, lWhite, rfWhite, rWhite;
 
