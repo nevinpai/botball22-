@@ -986,8 +986,6 @@ void dual_servo_position(int pos, int inc) {
     
 }
 void slow_servo(int amt, int inc, int port){ // pos amt for forward, neg amt for back (in servo ticks), inc is the increment
-    //left up = forward port 0
-    //right down = forward port 1
     //establish current pos
     int serv = port;
     int pos = get_servo_position(serv);
@@ -1013,7 +1011,7 @@ void slow_servo(int amt, int inc, int port){ // pos amt for forward, neg amt for
 
     
     else if(back ==1){
-         while(moved<=amt){
+         while(moved>=amt){
            
             pos = get_servo_position(serv);
             set_servo_position(serv, pos - inc);
@@ -1027,9 +1025,7 @@ void slow_servo(int amt, int inc, int port){ // pos amt for forward, neg amt for
 }
 
 void slow_servo_position(int pos, int inc, int port) {
-     
-      int serv = port;
-      int ticks = pos - get_servo_position(serv);
-      slow_servo(ticks, inc, serv);
+      int ticks = pos - get_servo_position(port);
+      slow_servo(ticks, inc, port);
     
 }

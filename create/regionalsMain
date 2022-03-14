@@ -19,7 +19,8 @@
 
 //For forearms
 #define VERT 1650
-#define START 135
+//#define START 135
+#define START 250
 #define PLACE 2047
 
 //For Claw
@@ -27,7 +28,7 @@
 #define OPEN 1250
 
 //For Wrist
-#define GRAB 135
+#define GRAB 200
 #define UP 500
 
 
@@ -41,9 +42,10 @@ void turn();
 
 int main() {
   	
-	//SETS UP THE CREATE FOR THE START OF THE MATCH.
+	//SETS UP THE CREATE FOR THE START OF THE MATCH
+    
 	setup();
-	
+    //dual_servo_position(VERT + 1450, 3);
     
     //DRIVES FORWARD UNTIL THE TOUCH SENSOR HITS THE SECOND POLE.
     calc_dev();
@@ -58,22 +60,23 @@ int main() {
           }
 
           //printf("%d", i);
-		  create_forward_gyro(-150, 0);
+		  create_forward_gyro(-250, 0);
           msleep(1);
           
 	}
   
   
     //Moves a little bit back to line up properly with center
+    set_servo_position(CLAW, CLOSE);
     create_forward_gyro(100, 0);
-    msleep(650);
+    msleep(600);
                         
 	//Turn towards Botguy(@ the second pole) 
-    create_left(96, 100);
+    create_left(100, 100);
     
     //Squaring up towards the center(driving towards center)
-    create_forward_gyro(-100, 0);
-    msleep(5500);
+    create_forward_gyro(-200, 0);
+    msleep(2800);
 
     //Grabbing botguy
    	grabBot();
@@ -81,26 +84,28 @@ int main() {
 
     //Heading towards Transport for sqauring up!
     create_forward_gyro(200, 0);
-    msleep(1350);
-    create_right(100, 100);
+    msleep(1800);
+    create_right(101, 100);
     create_forward_gyro(-200, 0);
-    msleep(4500);
+    msleep(4250);
     
     //Heading towards airlock!
     create_forward_gyro(150, 0);
-    msleep(1300);
+    msleep(2000);
     create_drive_direct(100, -100);
     msleep(1600);
-    create_forward_gyro(-100, 0);
-    msleep(2000);
-    create_left(63, 100);
+    create_forward_gyro(-150, 0);
+    msleep(5000);
+    create_drive_direct(100, 100);
+    msleep(1000);
+    create_left(80, 100);
    	placeBot();
     
     create_drive_direct(50, 50);
     msleep(1000);
 
     //Going towards transporter for square up
-    create_right(63, 100);
+    create_right(57, 100);
     create_forward_gyro(100, 0);
     msleep(2650);
     create_drive_direct(-100, 100);
@@ -121,6 +126,8 @@ int main() {
 
     msleep(50);
     
+    
+    
     return 0;
 
 
@@ -128,17 +135,13 @@ int main() {
 
 
 void grabBot() { 
-
-    //Driving back in position to pick up Botguy(in front of Botguy)
-    create_forward_gyro(100, 0);
-    msleep(680);
 	
     //Positioning the robot and arm to pick up Botguy
     create_drive_direct(0, 0);
+    create_left(3, 100);
     set_servo_position(CLAW, OPEN);
-	dual_servo_position(VERT - 50, 3); 
+	dual_servo_position(VERT, 3); 
 	set_servo_position(WRIST, GRAB);
-    create_left(1, 100);
     msleep(250);
     
      //Actually grabbing Botguy
@@ -153,13 +156,23 @@ void grabBot() {
 
  void placeBot() {
 	
-    slow_servo_position(550, 3, WRIST);
-    dual_servo_position(VERT + 600, 3);
-    msleep(200);
-	msleep(50);
+    
+    dual_servo_position(VERT, 3);
+    create_drive_direct(0, 0);
+	msleep(500);
+    slow_servo_position(500, 3, WRIST);
+    create_drive_direct(0, 0);
+	msleep(500);
+    dual_servo_position(VERT + 1450, 3);
+   	create_drive_direct(0, 0);
+	msleep(500);
+    create_drive_direct(-100, -100);
+    msleep(350);
+    create_drive_direct(0, 0);
+	msleep(500);
  	slow_servo_position(OPEN, 3, CLAW);
- 	msleep(50);
- 	set_servo_position(CLAW, OPEN - 30);
+ 	msleep(500);
+ 	slow_servo_position(OPEN - 30, 3, CLAW);
  	dual_servo_position(VERT, 3);
 
 
@@ -172,7 +185,7 @@ void setup() {
     //set_create_total_angle(0);
 
     set_servo_position(WRIST, GRAB);
-    set_servo_position(CLAW, CLOSE);
+    set_servo_position(CLAW, 1200);
    	
     enable_servos();
     
@@ -191,4 +204,3 @@ void setup() {
 //     disable_servos();
 //     ao();
 // }
-
