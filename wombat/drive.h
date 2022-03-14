@@ -10,6 +10,8 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
+int WHITE;
+int BLACK;
 // Hard constants
 #define MAX_SPEED 1500
 
@@ -20,8 +22,10 @@
 #define SPD_R_TURN ((SPD_R_B + SPD_L_F) / 2)
 
 // Robot-specific constants
-#define MOT_LEFT 1 // Port the left drive motor is plugged into.
-#define MOT_RIGHT 0// Port the right drive motor is plugged into.
+#define MOT_LEFT 0 // Port the left drive motor is plugged into.
+#define MOT_RIGHT 1// Port the right drive motor is plugged into.
+#define R_BUMP digital(1)
+#define L_BUMP digital(0)
 #define WHEEL_DIAMETER 6 // Diameter of the wheel. Common values in appendix
 #define ROBOT_DIAMETER 15 // Distance from the center of one wheel to the center of the other.
 #define BEMFS_PER_ROTATION 1500 // Motor ticks per rotation. KIPR says this value should be around 1500.
