@@ -20,8 +20,7 @@
 //For forearms
 #define VERT 1650
 //#define START 135
-
-#define START 250
+#define START 150
 #define PLACE 2047
 
 //For Claw
@@ -29,7 +28,7 @@
 #define OPEN 1250
 
 //For Wrist
-#define GRAB 200
+#define GRAB 250
 #define UP 500
 
 
@@ -158,8 +157,6 @@ int main() {
 
 
 
-    
-    
     
     
     
