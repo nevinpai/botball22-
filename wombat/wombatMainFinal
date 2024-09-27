@@ -1,0 +1,330 @@
+#include "drive.h"
+#include <kipr/botball.h>
+#include <kipr/wombat.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
+
+
+#define TOPHAT_MAIN analog(1)
+#define ET analog(0)
+#define AET analog(4)
+
+#define CLAW 0 //servo
+#define OPEN 75
+#define CLOSED 1100
+
+#define BELT 3 //motor
+#define RED -3328
+#define ORANGE -4045
+#define YELLOW -4330
+#define GREEN -5010
+#define BLUE -5500
+#define VERTICAL -800
+
+#define FORK 2 //motor
+#define LPRONG 217
+#define RPRONG 370
+#define LDELIVER 640
+#define RDELIVER 820
+
+bool runThreadR = false; 
+bool runThreadL = false; 
+bool runThreadLD = false; 
+int a;
+int b;
+thread holdR;
+thread holdL;
+
+void adjust();
+
+//TODO get the rings on the fork
+bool mtpa(int motor, int speed, int goal){
+    while(gmpc(motor)<goal){
+        mav(motor,speed);
+        msleep(1);
+        freeze(motor);
+    }
+    while(gmpc(motor)>goal){
+        mav(motor,speed*-1);
+        msleep(1);
+        freeze(motor);
+    }
+    freeze(motor);
+    return true;
+}
+
+bool rings(){
+    int speed = 1600;
+    int speedx = 200;
+
+
+    set_servo_position(CLAW, OPEN);
+    mtpa(BELT,speed,RED);
+    freeze(FORK);
+    set_servo_position(CLAW, CLOSED);
+    mtpa(BELT,speed,VERTICAL+200);
+    set_servo_position(CLAW, OPEN);
+    msleep(800);
+    mtpa(BELT,speed,ORANGE);
+    freeze(FORK);
+    mtpa(FORK,speedx, RPRONG);
+    runThreadR = true;
+    set_servo_position(CLAW, CLOSED);
+    freeze(FORK);
+    mtpa(BELT,speed,VERTICAL);
+    set_servo_position(CLAW, OPEN+300);
+    runThreadR = false;
+    mtpa(BELT,speed,YELLOW);
+    mtpa(FORK,speedx, LPRONG);
+    runThreadL = true;
+    freeze(FORK);
+    set_servo_position(CLAW, CLOSED);
+    mtpa(BELT,speed,VERTICAL);
+    set_servo_position(CLAW, OPEN+300);
+    msleep(800);
+    freeze(FORK);
+    //thread_start(holdR);
+    //thread_start(holdL);
+    runThreadL = false;
+    mtpa(BELT,speed,GREEN);
+    freeze(FORK);
+    mtpa(FORK,speedx, RPRONG);
+    runThreadR = true;
+    set_servo_position(CLAW, CLOSED);
+    freeze(FORK);
+    mtpa(BELT,speed,VERTICAL);
+    set_servo_position(CLAW, OPEN+200);
+    msleep(800);
+    runThreadR = false;
+    freeze(FORK);
+    mtpa(BELT,speed,BLUE);
+    mtpa(FORK,speedx, LPRONG+50);
+    freeze(FORK);
+    runThreadL = true;
+    set_servo_position(CLAW, CLOSED);
+    freeze(FORK);
+    //thread_destroy(holdR);
+    //thread_destroy(holdL);
+    mtpa(BELT,speed,VERTICAL);
+    msleep(800);
+    freeze(FORK);
+    //slow_servo(OPEN-100, 10, CLAW);
+    set_servo_position(CLAW, OPEN);
+    freeze(FORK);
+    runThreadL = false; 
+    runThreadR = false; 
+    return true;
+}
+
+bool startWombat(){
+    enable_servos();
+    cmpc(BELT);
+    cmpc(FORK);
+
+    //calibrate_Tophat();
+    //calc_dev();
+    printf("ready");
+    return true;
+}
+
+void square_up2(int time){
+    mav(MOT_LEFT, -500);
+    mav(MOT_RIGHT, -1000);
+    msleep(time);
+
+}
+void backUp(){
+    mav(MOT_LEFT,-680);
+    msleep(700);
+    freeze(MOT_LEFT);
+}
+void goToRings(){
+    backward(5);
+    mtpa(BELT,1000,RED);
+    set_servo_position(CLAW, OPEN);
+    forward(17);
+    backUp();
+
+}
+
+
+
+bool deliverRings(){
+    mtpa(BELT,700,YELLOW+2200);
+    msleep(100);
+    set_servo_position(CLAW, CLOSED);
+    mtpa(FORK,200, 340);
+    right(-247, 0); //247
+    printf("\n blht");
+    while(analog(1) <1400){
+        backward(2);
+    }
+    backward(15);
+    printf("\n blht");
+    //outside tophat port 2, inside 1
+    while(analog(2) <1400){
+        mav(MOT_LEFT, 300);
+        msleep(50);
+    }
+    freeze(MOT_LEFT);
+    while(analog(1) <1400){
+        mav(MOT_RIGHT, 300);
+        msleep(50);
+    }
+    freeze(MOT_RIGHT);
+    while(analog(2) >1400){
+        mav(MOT_LEFT, -300);
+        msleep(50);
+    }
+    freeze(MOT_LEFT);
+    while(analog(1) <1400&&analog(2) <1400){
+        mav(MOT_LEFT, 200);
+        mav(MOT_RIGHT, 450);
+        msleep(100);
+    }
+    ao();
+    backward(55);
+
+    //thread_start(holdR);
+    
+    runThreadL = true; 
+    thread_start(holdL);
+    mtpa(FORK, 150, LDELIVER-170);
+    adjust();
+    //runThreadR = false; 
+    mav(MOT_LEFT, 175);
+    mav(MOT_RIGHT, 175);
+    msleep(17000);
+    ao();
+    runThreadLD = false; 
+    thread_destroy(holdL);
+    mav(MOT_LEFT, -800);
+    mav(MOT_RIGHT, -800);
+    msleep(3000);
+    ao();
+    mtpa(FORK, 150, 930);
+    mav(MOT_LEFT, 1200);
+    mav(MOT_RIGHT, 1200);
+    msleep(8000);
+    ao();
+    //runThreadR = false; 
+    printf("/n chillin");
+    return true;
+
+
+}
+void adjust(){
+    //move to between 1750 - 1850 for AET val
+    //closer means larger number
+    while(analog(4) < 1700){
+        mav(MOT_LEFT,150);
+        mav(MOT_RIGHT, 180);
+        msleep(10);
+    }
+    ao();
+    while(analog(4) > 1800){
+        mav(MOT_LEFT, 180);
+        mav(MOT_RIGHT, 150);
+        msleep(10);
+    }
+    ao();
+}
+void holdForkR(){
+    int motor = FORK;
+    int pos = RDELIVER;
+    while(1){
+        while(runThreadR){
+            while(pos-gmpc(motor)>20){ 
+                mav(motor, 500);
+                msleep(40);
+                freeze(motor);
+                msleep(10);
+            }
+            while(gmpc(motor)-pos>20){
+                mav(motor, -500);
+                msleep(40);
+                freeze(motor);
+                msleep(10);
+            }
+        }
+        msleep(300);
+    }
+
+}
+
+void holdForkL(){
+    int motor = FORK;
+    int pos = LDELIVER;
+    while(1){
+        while(runThreadL){
+            while(pos-gmpc(motor)>20){ 
+                mav(motor, 500);
+                msleep(40);
+                freeze(motor);
+            }
+            while(gmpc(motor)-pos>20){
+                mav(motor, -500);
+                msleep(40);
+                freeze(motor);
+            }
+        }
+        msleep(300);
+    }
+
+}
+void holdForkLD(){
+    int motor = FORK;
+    while(1){
+        while(runThreadL){
+            while(analog(0)<2152 + a){ 
+                mav(motor, 50); 
+                msleep(1);
+                mav(motor, 0);
+            }
+            
+  
+
+            while(analog(0)>2150+ a){
+                mav(motor, -50);
+                msleep(1);   
+                mav(motor, 0);
+            }
+
+        }
+        msleep(10);
+    }
+}
+
+void setUp(){
+    while(!any_button());
+    printf("starting");
+    set_servo_position(0,1100);
+    msleep(400);
+    while(!(any_button())){
+        mav(3,250);
+    }
+    freeze(3);
+    msleep(400);
+    while(!any_button());
+    printf("finished");
+}
+
+int main()
+{
+    bool doSetUp = true;
+	if(doSetUp) setUp();
+    startWombat();
+    holdR = thread_create(holdForkR);
+    holdL = thread_create(holdForkLD);
+    wait_for_light(3);
+    shut_down_in(118);
+    goToRings();
+    rings();
+    deliverRings();
+    disable_servos();
+
+    return 0;
+}

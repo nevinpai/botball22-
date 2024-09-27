@@ -1,5 +1,9 @@
 #include "drive.h"
 #include <kipr/botball.h>
+#include <kipr/wombat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 
 void drive_off() {
@@ -343,8 +347,8 @@ void forward_gyro(float dist, int speed) {
 
 void calc_dev() {
    msleep(500);
-  printf("please keep robot still for 6 seconds\n press right button When Ready\n");
-  while (!right_button()) msleep(50);
+  printf("please keep robot still for 6 seconds\n press any button When Ready\n");
+  while (!any_button()) msleep(50);
   printf("calculating...\n");
   int time = 6000;
   int interval = 80;
@@ -421,26 +425,62 @@ void light_start () {
 }
 
 
-void slow_servo(int fin, int port)
-{
-    int init = get_servo_position(port)
-    if (init < fin)
-    {
-        for (init; init < fin; init++)
+void slow_servo(int fin, int inc, int port){
+    
+    int init = get_servo_position(port);
+    
+    if (init < fin){
+         while(init < fin)
         {
             set_servo_position(port, init);
-            msleep(5);// adjust value to increase or decrease speed
+            msleep(inc);// adjust value to increase or decrease speed
+            init++;
         }
         return;
     }
-    else if (init > fin)
-    {
-        for (init; init > fin; init--)
+    
+    else if (init > fin){
+        while(init > fin)
         {
             set_servo_position(port, init);
-            msleep(5);// adjust value to increase or decrease speed
+            msleep(inc);// adjust value to increase or decrease speed
+            init--;
         }
         return;
+    }
+    
+}
+
+
+
+
+
+void square_up(){
+
+    if (L_BUMP==0 && R_BUMP==0){// this is square up code
+        while(R_BUMP==0||L_BUMP==0){// checking that either are pressed
+			 
+            if (R_BUMP==0&&L_BUMP==0){
+                mav(MOT_RIGHT,-600);
+                mav(MOT_LEFT,-600);
+            }
+            if (R_BUMP==0&&L_BUMP==1){
+                mav(MOT_RIGHT,-600);
+                freeze(MOT_LEFT);// lock wheel
+            }
+            if (R_BUMP==1&&L_BUMP==0){
+                mav(MOT_LEFT,-600);
+                freeze(MOT_RIGHT);
+
+            }
+
+
+        }
+    }
+    if (R_BUMP==1&&L_BUMP==1){ //move forward out of while
+        mav(MOT_RIGHT,600);
+        mav(MOT_LEFT,600);
+        msleep(500);
     }
 }
 
@@ -472,34 +512,5 @@ void calibrate_Tophat(){
 	//if the descrepancy is too small between white and black, values are bad
         calibrate_Tophat();
     }
-
 }
 
-void square_up(){
-
-    if (L_BUMP!=1 && R_BUMP!=1){// this is square up code
-        while(R_BUMP==0||L_BUMP==0){// checking that either are pressed
-
-            if (R_BUMP==0&&L_BUMP==0){
-                mav(MOTOR_R,-600);
-                mav(MOTOR_L,-600);
-            }
-            if (R_BUMP==1&&L_BUMP==0){
-                mav(MOTOR_L,-600);
-                freeze(MOTOR_R);// lock wheel
-            }
-            if (R_BUMP==0&&L_BUMP==1){
-                mav(MOTOR_R,-600);
-                freeze(MOTOR_L);
-
-            }
-
-
-        }
-    }
-    if (R_BUMP==1&&L_BUMP==1){ //move forward out of while
-        mav(MOTOR_R,600);
-        mav(MOTOR_L,600);
-        msleep(500);
-    }
-}

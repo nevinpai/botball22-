@@ -1,0 +1,342 @@
+#include "createDrive.h"
+#include <kipr/botball.h>
+#include <kipr/wombat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define LEFT 0 
+#define RIGHT 1
+#define WRIST 2
+#define CLAW 3
+
+// down left offset by 135, up left is offset by -50
+//PORT 0 HAS TO BE 135 TO START WITH, PORT 1 HAS TO 2047 TO START
+//60 is when PORT 1 HAS TO BE UP
+//2047 IS FOR PORT 0 WHEN ITS ALL THE WAY UP
+
+#define ET 0
+
+//For forearms
+#define VERT 1350
+#define START 0
+#define PLACE 2047
+
+//For Claw
+#define CLOSE 2047
+#define OPEN 1300
+#define HALF 1700
+
+//For Wrist
+#define GRAB 20
+#define UP 0
+#define CUBE 1220
+
+
+
+void setup();
+void grabBot();
+void placeBot();
+void slowServo(int port, int position);
+void stopCreate(int ms);
+void turn();
+void grabGreenCube();
+void grabRedCube();
+void placeGreenCube();
+void placeRedCube();
+
+int main() {
+
+    //SETS UP THE CREATE FOR THE START OF THE MATCH
+
+    setup();
+    calc_dev();
+    wait_for_light(5);
+    shut_down_in(118);
+    
+    create_forward_gyro(-250, 0);
+    msleep(2900);
+   
+
+
+    /*int i = 0;
+    int time = 0;
+    while(i < 2) {
+        if(analog(ET) > 1400) {
+            while(analog(ET) > 1400) {
+                time++;
+                msleep(1);
+            }
+            i++;
+        }
+
+        //printf("%d", i);
+        create_forward_gyro(-250, 0);
+        msleep(1);
+        time++;
+		
+    }
+	printf("time: %d", time);
+    */
+
+    //Moves a little bit back to line up properly with center
+    set_servo_position(CLAW, CLOSE);
+    //create_forward_gyro(100, 0);
+    //msleep(640);
+
+    //Turn towards Botguy(@ the second pole) 
+    stop_stuff(1);
+    create_left(97, 100);
+
+    //Squaring up towards the center(driving towards center)
+    create_forward_gyro(-200, 0);
+    msleep(2950);
+
+    //Grabbing botguy
+    grabBot();
+    dual_servo_position(VERT - 450, 1);
+
+    //Heading towards Transport for sqauring up!
+    create_forward_gyro(200, 0);
+    msleep(1850);
+    create_right(98.5, 100);
+    create_forward_gyro(-200, 0);
+    msleep(4250);
+
+    //Heading towards airlock!
+    create_forward_gyro(150, 0);
+    msleep(1100);
+    create_drive_direct(100, -100);
+    msleep(1600);
+    create_forward_gyro(-100, 0);
+    msleep(1100);
+    create_left(68, 100);
+    placeBot();
+
+    //Green cube!
+    //set_servo_position(CLAW, OPEN + 100);
+    dual_servo_position(START, 1);
+    create_drive_direct(-200, 200);
+    msleep(1375);
+    create_forward_gyro(-200, 0);
+    msleep(800);
+    create_drive_direct(200, -200);
+    msleep(950);
+    create_drive_direct(-150, -150);
+    msleep(1600);
+
+
+    //Turning towards green cube
+    create_drive_direct(200, 200);
+    msleep(500);
+    create_drive_direct(100, -100);
+    msleep(1600);
+    create_right(3, 100);
+
+    set_servo_position(WRIST, CUBE);
+    //Driving towards green cube
+    create_forward_gyro(100, 0);
+    msleep(1450);
+
+    //Actually grabbing the green cube
+    grabGreenCube();
+
+    //Driving to transport for square up 2nd time! 
+    create_drive_direct(-200, -200);
+    msleep(1425);
+    create_drive_direct(-200, 200);
+    msleep(1000);
+    create_drive_direct(-200, -200);
+    msleep(1110);
+
+    //Heading towards the airlock to place green cube!
+    create_forward_gyro(150, 0);
+    msleep(1100);
+    create_drive_direct(200, -200);//
+    msleep(930);
+    create_forward_gyro(-200, 0);//
+    msleep(3000);
+
+    placeGreenCube();
+
+    //RED CUBE!
+    msleep(500);
+
+    //Backing out of airlock
+    set_servo_position(WRIST, 1250);
+    msleep(500);
+    dual_servo_position(START, 1);
+    set_servo_position(WRIST, UP);
+    create_drive_direct(100, 100);
+    msleep(450);
+
+    //Heading to transport for square up #3
+    create_drive_direct(-200, 200);
+    msleep(1100);
+    create_forward_gyro(-200, 0);
+    msleep(1500);
+    create_drive_direct(150, -150);
+    msleep(1200);
+    create_drive_direct(-150, -150);
+    msleep(2100);
+
+    //Driving into position
+    create_forward_gyro(150, 0);
+    msleep(2000);
+
+    //Turning towards red cube
+    create_drive_direct(100, -100);
+    msleep(1750);
+
+    //Driving towards red cube
+    create_forward_gyro(140, 0);
+    msleep(1500);
+
+    //Actually grabbing the red cube
+    grabRedCube();
+    create_drive_direct(-150, -150);
+    msleep(1850);
+    create_drive_direct(-100, 100);
+    msleep(1600);
+    create_forward_gyro(-150, 0);
+    msleep(2200);
+
+    //Going to airlock for final placement
+    create_forward_gyro(150, 0);
+    msleep(1250);
+    create_drive_direct(100, -100);//
+    msleep(1500);
+    create_forward_gyro(-200, 0);//
+    msleep(3000);
+
+    create_drive_direct(100, 100);
+    msleep(1000);
+    stop_stuff(1);
+    dual_servo_position(PLACE - 1700, 1); 
+    stop_stuff(1);
+    create_right(115, 100);
+    placeRedCube();
+
+    create_stop();
+
+    return 0;
+}
+
+
+void grabBot() { 
+
+    //Positioning the robot and arm to pick up Botguy
+    stop_stuff(500);
+    set_servo_position(CLAW, OPEN-300);
+    dual_servo_position(VERT, 1); 
+    set_servo_position(WRIST, GRAB - 7);
+    //Actually grabbing Botguy
+    create_drive_direct(-50, -50);
+    msleep(650);
+    set_servo_position(CLAW, CLOSE);
+    msleep(500);
+
+}
+
+void grabGreenCube() { 
+
+    set_servo_position(CLAW, OPEN - 350);
+    stop_stuff(1);
+    set_servo_position(WRIST, CUBE + 110);
+    create_right(3, 100);
+    create_drive_direct(50, 50);
+    msleep(165);
+    stop_stuff(100);
+    stop_stuff(10);
+    set_servo_position(CLAW, CLOSE);
+    msleep(1000);
+}
+
+void grabRedCube() { 
+
+    set_servo_position(CLAW, OPEN - 350);
+    create_right(2, 100);
+    create_drive_direct(50, 50);
+    msleep(100);
+    stop_stuff(20);
+    set_servo_position(WRIST, CUBE);
+    msleep(1000);
+    create_forward_gyro(100, 0);
+    msleep(480);
+    stop_stuff(10);
+    set_servo_position(CLAW, CLOSE);
+    msleep(1000);
+}
+
+void placeGreenCube() { 
+    create_drive_direct(100, 80);
+    msleep(750);
+    stop_stuff(200);
+    create_left(89, 100);
+    dual_servo_position(PLACE - 240, 1);
+    stop_stuff(500);
+    create_drive_direct(-100, -100);
+    msleep(250);
+    stop_stuff(500);
+    slow_servo_position(250, 3, WRIST);
+    stop_stuff(500);
+    slow_servo_position(OPEN, 3, CLAW);
+    stop_stuff(100);
+    //Turning the platform
+
+
+
+
+}
+
+void placeRedCube() {
+
+    stop_stuff(150);
+    create_drive_direct(100, 100); //CHANGED + ADDED
+    msleep(500);
+    stop_stuff(10);
+    
+
+
+}
+
+
+void placeBot() {
+
+    camera_center(25); 
+    slow_servo_position(910, 3, WRIST); 
+    stop_stuff(1);
+    create_drive_direct(-100, -100);
+    msleep(330);               
+    stop_stuff(1);
+	dual_servo_position(PLACE, 1);
+    stop_stuff(1);
+    slow_servo_position(HALF, 3, CLAW); 
+    stop_stuff(1);
+    slow_servo_position(800, 3, WRIST); 
+    stop_stuff(1);
+    slow_servo_position(940, 3, CLAW); 
+    
+
+
+
+}
+
+
+void setup() {
+    create_connect();
+    camera_open();
+    set_servo_position(WRIST, UP);
+    set_servo_position(CLAW, OPEN - 500);
+    enable_servos();
+    dual_servo_position(START, 2);
+    stop_stuff(500);
+
+}
+
+// void stop()
+// {
+//     create_disconnect();
+//     disable_servos();
+//     ao();
+// }

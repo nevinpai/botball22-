@@ -1,3 +1,3 @@
-# botball22
+# Botball 2022
 
-Team 0636 code repo 
+Team 0636's code repo :)
